@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+		
+	<!-- <bean id="tt" class="com.myaws.myapp.service.Test"></bean> -->
+	
+	<!-- mybatis 관련 설정 -->
+ 	<bean id="db" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />  <!-- <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property> 와 같다 -->
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/aws0822?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true"></property>
+		<!-- jdbc:mysql://URL:포트번호/DB이름?useSSL(보안프로토콜 사용유무. 내부에서만 사용할거라서 false로 지정)&amp;serverTimezone=UTC(국제타임존. mysql은 필수값)&amp;allowPublicKeyRetrieval(공백허용 유무) -->
+		<property name="username" value="root" />
+		<property name="password" value="1234" />
+	</bean>
+		
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="db" />  <!-- db를 연결한다 -->
+		<property name="mapperLocations" value="classpath:mappers/*.xml" />  <!-- classpath:mappers/에 있는 *.xml파일들을 사용 -->
+		<property name="configLocation" value="classpath:config/mybatis_config.xml" />  <!-- mybatis 설정파일 위치 -->
+	</bean>
+
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">  <!-- 실제 사용하는 mybatis 객체 -->
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />  <!-- 생성자 매개변수로 sqlSessionFactory를 사용해서 sqlSessionFactory와 연동 -->
+	</bean>
+	
+	<!-- 적용 범위 지정 -->
+	<context:component-scan base-package="com.myaws.myapp">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	
+</beans>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">  <!-- 규칙 지정 -->
+ 
+<configuration> 
+<typeAliases>
+ <typeAlias alias="mv" type="com.myaws.myapp.domain.MemberVo"/>  <!-- mybatis 내부에서의 별칭 설정 alias="mv" -->
+
+</typeAliases>
+</configuration>
