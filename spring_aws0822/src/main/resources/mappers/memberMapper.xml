@@ -4,9 +4,23 @@
 
 <mapper namespace="com.myaws.myapp.persistance.MemberMapper">
 	
-	<insert id="memberInsert" parameterType="mv">
+	<!-- 쿼리의 id는 MemberMapper.java의 메서드명과 일치해야함.-->
+	
+	<insert id="memberInsert" parameterType="mv">  <!-- insert 쿼리는 반환값을 지정하지 않아도 성공시 1, 실패시 0인 int형 값을 반환함 -->
 		insert into member(memberid,memberpwd,membername,membergender,memberbirth,memberaddr,memberphone,memberemail,memberhobby) 
 		values(#{memberid},#{memberpwd},#{membername},#{membergender},#{memberbirth},#{memberaddr},#{memberphone},#{memberemail},#{memberhobby})
 	</insert>
-
+	
+	<select id="memberIdCheck" parameterType="String" resultType="int">  <!-- resultType은 Interger로 해야하지만 mybatis에서는 int로 사용할 수 있음 -->
+		select count(*) as cnt from member where delyn = 'N' and memberid = #{memberId}
+	</select>
+		
+	<select id="memberLoginCheck" parameterType="String" resultType="mv">  <!-- mybatis_config.xml에서 MemberVo의 별칭을 mv로 지정했음 -->
+		select * from member where memberid = #{memberId}
+	</select>
+	
+	<select id="memberSelectAll" resultType="mv">  <!-- resultType="ArrayList<mv>" 아님 주의 -->
+		select * from member where delyn = 'N' order by midx desc
+	</select>
+	
 </mapper>

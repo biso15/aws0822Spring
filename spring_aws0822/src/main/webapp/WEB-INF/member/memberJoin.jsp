@@ -15,7 +15,7 @@
 	  // 유효성 검사하기
 	   let fm = document.frm;
 	  
-	   /*if (fm.memberid.value == "") {
+	   if (fm.memberid.value == "") {
 		  alert("아이디를 입력해주세요");
 		  fm.memberid.focus();
 		  return;
@@ -61,7 +61,7 @@
 	  } else if (hobbyCheck() == false) {
 		  alert("취미를 한개 이상 선택해주세요");
 		  return;
-	  } */
+	  }
 	  
 	  let ans = confirm("저장하시겠습니까?");
 	  
