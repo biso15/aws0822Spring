@@ -4,6 +4,7 @@
 <configuration> 
 <typeAliases>
  <typeAlias alias="mv" type="com.myaws.myapp.domain.MemberVo"/>  <!-- mybatis 내부에서의 별칭 설정 alias="mv" -->
-
+ <typeAlias alias="bv" type="com.myaws.myapp.domain.BoardVo"/>
+ <typeAlias alias="scri" type="com.myaws.myapp.domain.SearchCriteria"/>
 </typeAliases>
 </configuration>

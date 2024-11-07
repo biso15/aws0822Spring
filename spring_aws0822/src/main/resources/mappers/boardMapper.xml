@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.myaws.myapp.persistance.BoardMapper">
+
+	<!-- 자바처럼 sql문과 java를 섞어서 사용할 수 없어서 include해서 사용한다 -->
+	<sql id="search">	
+		<if test="searchType != null and searchType.equals('writer')">
+			and writer like concat('%',#{keyword},'%')
+		</if>
+		<if test="searchType != null and searchType.equals('subject')">
+			and subject like concat('%',#{keyword},'%')
+		</if>
+	</sql>
+	
+	<select id="boardSelectAll" parameterType="HashMap" resultType="bv">  <!-- mybatis에서는 여러개의 변수를 받아서 사용할수 없다.(같은 타입 2개까지는 가능하지만 지양) HashMap으로 여러개의 변수를 한번에 받아서 사용 -->
+		 select * from board where delyn='N'
+		 <include refid="search"/>
+		 order by originbidx desc, depth limit #{startPageNum}, #{perPageNum}  <!-- mybatis에서는 연산을 사용하지 않는다. 연산한 결과를 받아서 사용 -->
+	</select>
+		
+  	<select id="boardTotalCount" parameterType="scri" resultType="int">
+		select count(*) as cnt from board where delyn='N'
+		<include refid="search"/>
+	</select>
+	
+  	<insert id="boardInsert" parameterType="bv">
+		insert into board(originbidx, depth, level_, subject, contents, writer, password, midx, filename, ip)
+		values(null, 0, 0, #{subject}, #{contents}, #{writer}, #{password}, #{midx}, #{uploadedFilename}, #{ip})
+		
+		<selectKey keyProperty="bidx" resultType="int" order="AFTER">  <!-- order : AFTER와 BEFORE가 있다. insert문의 전에 실행할지 후에 실행할지를 정함 -->
+			select max(bidx) as maxbidx from board
+	  	</selectKey>
+	</insert>
+	
+	<insert id="boardOriginbidxUpadte" parameterType="int">
+		update board set originbidx = #{bidx} where bidx = #{bidx}
+	</insert>
+
+  	<select id="boardSelectOne" parameterType="int" resultType="bv">
+		select * from board where delyn = 'N' and bidx = #{bidx}
+	</select>
+	
+	<insert id="boardViewCntUpdate" parameterType="HashMap">
+		update board SET viewcnt = #{viewcntUpdate} where bidx = #{bidx}
+	</insert>
+
+</mapper>

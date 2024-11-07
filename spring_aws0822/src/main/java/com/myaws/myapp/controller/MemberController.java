@@ -2,6 +2,8 @@ package com.myaws.myapp.controller;
 
 import java.util.ArrayList;
 
+import javax.servlet.http.HttpSession;
+
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +78,8 @@ public class MemberController {
 	public String memberLoginAction(
 			@RequestParam("memberid") String memberId, 
 			@RequestParam("memberpwd") String memberPwd,
-			RedirectAttributes rttr  // request.setAttribute("serverTime", formattedDate); 와 비슷
+			RedirectAttributes rttr,  // request.setAttribute("serverTime", formattedDate); 와 비슷
+			HttpSession session
 		) {
 
 		logger.info("memberLoginAction들어옴");
@@ -91,18 +94,19 @@ public class MemberController {
 			String reservedPwd = mv.getMemberpwd();
 			
 			if(bCryptPasswordEncoder.matches(memberPwd, reservedPwd)) {  // 비밀번호 일치
-				System.out.println("비밀번호 일치");
+				logger.info("비밀번호 일치");
 				rttr.addAttribute("midx", mv.getMidx());
 				rttr.addAttribute("memberId", mv.getMemberid());
 				rttr.addAttribute("memberName", mv.getMembername());
 				
-				path = "redirect:/";
+				if(session.getAttribute("saveUrl") != null) {
+					path = "redirect:" + session.getAttribute("saveUrl").toString();
+				} else {					
+					path = "redirect:/";
+				}
 				
 			} else {  // 비밀번호 불일치
 				
-				// rttr.addAttribute("midx", "");
-				// rttr.addAttribute("memberId", "");
-				// rttr.addAttribute("memberName", "");
 				rttr.addFlashAttribute("msg", "아이디/비밀번호를 확인해주세요");  // addAttribute와 다르게 1회성임. 새로고침시 사라진다
 				
 				path = "redirect:/member/memberLogin.aws";
@@ -110,9 +114,6 @@ public class MemberController {
 			
 		} else {  // 객체값이 없으면
 
-			// rttr.addAttribute("midx", "");
-			// rttr.addAttribute("memberId", "");
-			// rttr.addAttribute("memberName", "");
 			rttr.addFlashAttribute("msg", "해당하는 아이디가 없습니다.");
 			
 			path = "redirect:/member/memberLogin.aws";
@@ -154,6 +155,21 @@ public class MemberController {
 		model.addAttribute("alist", alist);
 		
 		return "WEB-INF/member/memberList";
+		
+	}
+
+	
+	@RequestMapping(value="memberLogout.aws", method=RequestMethod.GET)
+	public String memberLogout(HttpSession session) {  // model은 자동으로 생성되는 객체이다
+
+		logger.info("memberLogout들어옴");
+		
+		session.removeAttribute("midx");
+		session.removeAttribute("membername");
+		session.removeAttribute("memberId");
+		session.invalidate();
+		
+		return "redirect:/";
 		
 	}
 	

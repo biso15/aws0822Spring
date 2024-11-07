@@ -6,11 +6,17 @@
 	xmlns:task="http://www.springframework.org/schema/task"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:aop="http://www.springframework.org/schema/aop"
-	xsi:schemaLocation="http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.3.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
 		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
@@ -18,12 +24,12 @@
 	<!-- <bean id="tt" class="com.myaws.myapp.service.Test"></bean> -->
 	
 	<!-- mybatis 관련 설정 -->
+	<context:property-placeholder location="classpath:properties/db.properties"/>  <!-- 설정값을 한개의 파일에서 관리한다 -->
  	<bean id="db" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />  <!-- <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property> 와 같다 -->
-		<property name="url" value="jdbc:mysql://127.0.0.1:3306/aws0822?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true"></property>
-		<!-- jdbc:mysql://URL:포트번호/DB이름?useSSL(보안프로토콜 사용유무. 내부에서만 사용할거라서 false로 지정)&amp;serverTimezone=UTC(국제타임존. mysql은 필수값)&amp;allowPublicKeyRetrieval(공백허용 유무) -->
-		<property name="username" value="root" />
-		<property name="password" value="1234" />
+		<property name="driverClassName" value="${db.driver}" />  <!-- <property name="driverClassName" value="${db.driver}"></property> 와 같다 -->
+		<property name="url" value="${db.url}" />
+		<property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
 	</bean>
 		
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -35,6 +41,13 @@
 	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">  <!-- 실제 사용하는 mybatis 객체 -->
 		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />  <!-- 생성자 매개변수로 sqlSessionFactory를 사용해서 sqlSessionFactory와 연동 -->
 	</bean>
+	
+	<!-- sql 트랜젝션 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<constructor-arg ref="db" />
+	</bean>
+	
+	<tx:annotation-driven />
 	
 	<!-- 적용 범위 지정 -->
 	<context:component-scan base-package="com.myaws.myapp">
