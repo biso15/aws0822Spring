@@ -1,5 +1,8 @@
 package com.myaws.myapp.controller;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
@@ -7,15 +10,22 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -23,6 +33,7 @@ import com.myaws.myapp.domain.BoardVo;
 import com.myaws.myapp.domain.PageMaker;
 import com.myaws.myapp.domain.SearchCriteria;
 import com.myaws.myapp.service.BoardService;
+import com.myaws.myapp.util.MediaUtils;
 import com.myaws.myapp.util.UploadFileUtiles;
 
 @Controller  // Controller 객체를 만들어줘
@@ -73,7 +84,7 @@ public class BoardController {
 	@RequestMapping(value="boardWriteAction.aws", method=RequestMethod.POST)
 	public String boardWriteAction(
 			BoardVo bv,
-			@RequestParam("filename") MultipartFile filename,  // filename은 RequestParam으로 받아야해서 BoardVo에 있는 filename을 삭제
+			@RequestParam("attachfile") MultipartFile filename,  // input의 name 이름이 BoardVo에 있는 프로퍼티 이름과 동일하면 BoardVo로 값이 넘어가서 @RequestParam으로 받을 수 없으므로, input의 name을 filename이 아닌 attachfile으로 한다.
 			HttpServletRequest request,
 			RedirectAttributes rttr
 			) throws Exception {
@@ -113,22 +124,17 @@ public class BoardController {
 	public String boardContents(@RequestParam("bidx") int bidx,	Model model) {
 		
 		logger.info("boardContents들어옴");
-				
-		BoardVo bv = boardService.boardSelectOne(bidx);  // 해당되는 bidx의 게시물 데이터 가져옴
-		int value = boardService.boardViewCntUpdate(bv);  // 조회수 +1 업데이트 하기
 		
-		String path = "";
-		if (value == 1) {  // 조회수 업데이트 성공			
-			model.addAttribute("bv", boardService.boardSelectOne(bidx));
-			path ="WEB-INF/board/boardContents";
-			
-		} else {  // 조회수 업데이트 실패
-			path ="WEB-INF/board/boardList.jsp";
-		}
+		boardService.boardViewCntUpdate(bidx);  // 조회수 업데이트 하기
+		BoardVo bv = boardService.boardSelectOne(bidx);  // 해당되는 bidx의 게시물 데이터 가져옴
+		
+		model.addAttribute("bv", bv);
+		
+		String path = "WEB-INF/board/boardContents";
 		
 		return path;			
 	}
-
+	
 	// ip주소 추출
 	public String getUserIp(HttpServletRequest request) throws Exception {
 		
@@ -167,5 +173,108 @@ public class BoardController {
         }
 		
 		return ip;
+	}
+	
+	// 파일을 보여줄 가상 경로에 파일 옮기기
+	@RequestMapping(value="/displayFile.aws", method=RequestMethod.GET)  // 가상경로와 매핑이 되어야 함
+	public ResponseEntity<byte[]> displayFile(
+			@RequestParam("fileName") String fileName,
+			@RequestParam(value="down", defaultValue="0") int down  // 다운 받을지, 화면에서 보여줄지 선택
+			) {
+
+		logger.info("displayFile들어옴");
+		
+		ResponseEntity<byte[]> entity = null;  // ResponseEntity : Collection처럼 객체를 담는다.
+		InputStream in = null;
+		
+		try{
+			String formatName = fileName.substring(fileName.lastIndexOf(".")+1);  // 파일의 확장자를 꺼냄
+			MediaType mType = MediaUtils.getMediaType(formatName);  // MediaUtils에 확장자를 넣어서 파일의 타입을 알아냄
+			
+			HttpHeaders headers = new HttpHeaders();		
+			 
+			in = new FileInputStream(uploadPath+fileName);  // 파일 읽기
+						
+			if(mType != null){  // 파일의 타입이 JPG, GIF, PNG 중 하나일 경우
+				
+				if (down==1) {  // 다운을 받는다
+					fileName = fileName.substring(fileName.indexOf("_")+1);
+					headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+					headers.add("Content-Disposition", "attachment; filename=\""+
+							new String(fileName.getBytes("UTF-8"),"ISO-8859-1")+"\"");	
+					
+				}else {  // 다운받지 않고 타입을 저장
+					headers.setContentType(mType);	
+				}
+				
+			}else{  // 미리보기 하지 않고 다운을 받는다.
+				
+				fileName = fileName.substring(fileName.indexOf("_")+1);
+				headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+				headers.add("Content-Disposition", "attachment; filename=\""+
+						new String(fileName.getBytes("UTF-8"),"ISO-8859-1")+"\"");				
+			}
+			
+			entity = new ResponseEntity<byte[]>(IOUtils.toByteArray(in), headers, HttpStatus.CREATED);  // 생성자의 매개변수에 값을 받아서 생성
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			entity = new ResponseEntity<byte[]>(HttpStatus.BAD_REQUEST);
+			
+		}finally{
+			try {
+				in.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+				
+		return entity;
+	}
+
+	@ResponseBody
+	@RequestMapping(value="boardRecom.aws")
+	public JSONObject boardRecom(@RequestParam("bidx") int bidx) {
+		
+		logger.info("boardRecom들어옴");
+		
+		int recom = boardService.boardRecomUpdate(bidx);
+
+		JSONObject js = new JSONObject();
+
+		js.put("recom", recom);
+		
+		return js;
+	}
+
+	@RequestMapping(value="boardDelete.aws")
+	public String boardDelete(@RequestParam("bidx") int bidx, Model model) {
+		
+		logger.info("boardDelete들어옴");
+		
+		model.addAttribute("bidx", bidx);
+
+		return "WEB-INF/board/boardDelete";
+		
+	}
+	
+	@RequestMapping(value="boardDeleteAction.aws", method=RequestMethod.POST)
+	public String boardDeleteAction(
+			@RequestParam("bidx") int bidx,
+			@RequestParam("password") String password,
+			HttpSession session) {
+		
+		logger.info("boardDeleteAction들어옴");		
+		
+		int midx = Integer.parseInt(session.getAttribute("midx").toString());
+		int value = boardService.boardDelete(bidx, midx, password);
+
+		String path = "redirect:/board/boardList.aws";
+		if(value == 0) {
+			path = "redirect:/board/boardDelete.aws?bidx=" + bidx;			
+		}
+		
+		return path;
 	}
 }

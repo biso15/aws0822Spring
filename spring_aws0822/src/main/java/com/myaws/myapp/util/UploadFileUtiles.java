@@ -21,7 +21,7 @@ public class UploadFileUtiles {
 	public static String uploadFile(String uploadPath, String originalName, byte[] fileData)	
 	throws Exception{
 		
-		UUID uid = UUID.randomUUID();
+		UUID uid = UUID.randomUUID();  // 랜덤으로 값을 만든다
 		String savedName = uid.toString() +"_"+originalName;
 		
 //		String path = UploadFileUtiles.class.getResource("").getPath();
@@ -64,7 +64,7 @@ public class UploadFileUtiles {
 		return iconName.substring(uploadPath.length()).replace(File.separatorChar, '/');
 	}
 	
-	private static String calcPath(String uploadPath) {  /* 경로를 계산한다 */
+	private static String calcPath(String uploadPath) {  /* 경로를 계산한다(날짜별로 폴더를 만들어줌) */
 		
 		Calendar cal = Calendar.getInstance();
 		String yearPath = File.separator+cal.get(Calendar.YEAR);
@@ -111,11 +111,7 @@ public class UploadFileUtiles {
 						Scalr.Method.AUTOMATIC, 
 						Scalr.Mode.FIT_TO_HEIGHT,100);
 		
-		String thumbnailName = 
-				uploadPath + 
-				path + 
-				File.separator + 
-				"s-"+fileName;
+		String thumbnailName = uploadPath + path + File.separator + "s-"+fileName;  // separator : 구분자(운영체제마다 다름). thumbnailName은 이름 앞에 "s-"를 붙인다.
 		
 	//	System.out.println("thumbnailName"+thumbnailName);
 		

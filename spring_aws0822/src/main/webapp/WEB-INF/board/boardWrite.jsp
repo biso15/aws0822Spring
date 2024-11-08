@@ -15,7 +15,7 @@
 <head>
 <meta charset="UTF-8">
 <title>글쓰기</title>
-<link href="/resources/css/style2.css" type="text/css" rel="stylesheet">
+<link href="<%=request.getContextPath()%>/resources/css/style2.css" type="text/css" rel="stylesheet">
 <script>
 function check() {
 	  
@@ -79,7 +79,11 @@ function check() {
 		</tr>
 		<tr>
 			<th>첨부파일</th>
-			<td><input type="file" name="filename"></td>
+			<td>
+				<input type="file" name="attachfile" id="fileInput">
+				<input type="text" class="fileInputName" readonly="readonly">
+				<label for="fileInput" class="btn labelBtn">파일선택</label>
+			</td>
 		</tr>
 	</table>
 	
@@ -89,5 +93,16 @@ function check() {
 	</div>	
 </form>
 
+<script>
+
+const fileInput = document.getElementById("fileInput");
+
+fileInput.addEventListener("change", function() {
+	const fileInputName = document.querySelector(".fileInputName");
+	const fileUrl = fileInput.value.split("\\");
+	fileInputName.value = fileUrl[fileUrl.length - 1];
+});
+
+</script>
 </body>
 </html>

@@ -9,10 +9,11 @@
 	if(session.getAttribute("memberName") != null) {
 		memberName = (String)session.getAttribute("memberName");
 	}
-	  // 현재 로그인 사람과 댓글쓴 사람의 번호가 같을때만 버튼이 나타남
+	
+	// 현재 로그인 사람과 댓글쓴 사람의 번호가 같을때만 버튼이 나타남
 	int midx = 0;
 	if(session.getAttribute("midx") != null) {
-		midx = (int)session.getAttribute("midx");
+		midx = Integer.parseInt(session.getAttribute("midx").toString());
 	}
 %>
 
@@ -21,9 +22,34 @@
 <head>
 <meta charset="UTF-8">
 <title>글내용</title>
-<link href="/resources/css/style2.css" rel="stylesheet">
+<link href="<%=request.getContextPath()%>/resources/css/style2.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 <script> 
+// 파일 다운로드시 썸네일을 다운받게 되므로 파일 이름에서 "s-"를 제거해야함
+function checkImageType(fileName) {  // 패턴과 확장자가 일치하는 파일 이름을 리턴받음
+	var pattern = /jpg$|gif$|png$|jpeg$/i;  // 자바스크립트 정규표현식
+	return fileName.match(pattern);
+}
+
+function getOriginalFileName(fileName) {  // 원본 파일 이름 추출	
+	var idx = fileName.lastIndexOf("_")+1  // DB에 있는 파일 이름 형식 : /2024/11/08/s-64ca590f-3e9e-4194-80f6-c6645e1f611f_rose.jpg
+	return fileName.substr(idx);
+}
+
+function getImageLink(fileName) {	
+	var front = fileName.substr(0,12);  // 0 ~ 12 전까지 추출. /2024/11/08/
+	var end = fileName.substr(14);  // 14부터 끝까지 추출. 64ca590f-3e9e-4194-80f6-c6645e1f611f_rose.jpg
+	return front + end;  // 13번 글자만 제외하고 추출
+}
+
+function download() {  // 주소 사이에 s-를 뺀 주소를 리턴
+	var downloadImageName = getImageLink("<%=bv.getFilename()%>");  // 썸네일 이미지 이름으로 원본 이미지 이름 변환
+	var downLink = "<%=request.getContextPath()%>/board/displayFile.aws?fileName=" + downloadImageName + "&down=1";
+	return downLink;	
+}
+
+
+// 댓글 삭제
 function commentDel(cidx) {
 	
 	let ans = confirm("삭제하시겠습니까?");
@@ -48,8 +74,8 @@ function commentDel(cidx) {
 }
 
 
-
 //jquery로 만드는 함수
+// 댓글 리스트 새로고침
  $.boardCommentList = function() {
 	$.ajax({
 		type: "get",  // 전송방식
@@ -92,11 +118,22 @@ function commentDel(cidx) {
 	});
 }
 
-//추천수 업데이트
+
+
 $(document).ready(function() {
+	
+	// 파일 이름 변경
+	$("#dUrl").html(getOriginalFileName("<%=bv.getFilename()%>") + " 다운받기");
+
+	// 원본 파일 다운로드
+	$("#dUrl").click(function() {
+		$("#dUrl").attr("href", download());
+		return;
+	})
 
 	$.boardCommentList();
 	
+	// 추천수 업데이트
  	$("#btn").click(function() {
 		// alert("추천버튼 클릭");
 		
@@ -106,7 +143,7 @@ $(document).ready(function() {
 			dataType: "json",
 			// data: {"bidx": bidx},  // get 방식으로 parameter로 넘긴다
 			success: function(result) {
-				// alert("전송성공");
+				// alert("전송성공");				
 				
 				var str = "추천(" + result.recom + ")";
 				$("#btn").val(str);
@@ -117,6 +154,8 @@ $(document).ready(function() {
 		});
 	 })
 	
+	 
+	 // 댓글 작성
  	$("#cmtBtn").click(function() {
   		
 		let loginCheck = "<%=midx%>";
@@ -179,9 +218,10 @@ $(document).ready(function() {
 	<div class="content">
 		<%=bv.getContents()%>
 	</div>
-	<% if(bv.getUploadedFilename() == null || bv.getUploadedFilename().equals("")) { } else { %>
-	<img src="<%=request.getContextPath()%>/image/<%=bv.getUploadedFilename()%>" class="fileImage">
-	<p><a href="<%=request.getContextPath()%>/board/boardDownload.aws?filename=<%=bv.getUploadedFilename()%>" class="fileDown">첨부파일다운로드</a></p>
+	<% if(bv.getFilename() == null || bv.getFilename().equals("")) { } else { %>
+	<%-- <img src="<%=request.getContextPath()%>/image/<%=bv.getFilename()%>" class="fileImage">  <!-- 보안상의 이유로 프로젝트 내부에 파일을 저장하지 않음. 경로 수정 필요 --> --%>
+	<img src="<%=request.getContextPath()%>/board/displayFile.aws?fileName=<%=bv.getFilename()%>" class="fileImage">  <!-- down의 값을 넘기지 않으면 기본값이 0이므로 이미지인 경우 미리보기로 나타남 -->
+	<p><a href="#" id="dUrl" class="fileDown">첨부파일다운로드</a></p>
 	<% } %>
 </article>
 	

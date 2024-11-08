@@ -13,6 +13,7 @@ public class MediaUtils {
 		mediaMap = new HashMap<String, MediaType>();
 		/* 확장자를 담는다 */
 		mediaMap.put("JPG", MediaType.IMAGE_JPEG);
+		mediaMap.put("JPEG", MediaType.IMAGE_JPEG);
 		mediaMap.put("GIF", MediaType.IMAGE_GIF);
 		mediaMap.put("PNG", MediaType.IMAGE_PNG);
 	

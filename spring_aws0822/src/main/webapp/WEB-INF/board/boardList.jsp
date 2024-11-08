@@ -33,7 +33,7 @@ if(request.getAttribute("msg") != null) {
 <head>
 <meta charset="UTF-8">
 <title>글목록</title>
-<link href="/resources/css/style2.css" type="text/css" rel="stylesheet">
+<link href="<%=request.getContextPath()%>/resources/css/style2.css" type="text/css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
