@@ -5,7 +5,7 @@
 <mapper namespace="com.myaws.myapp.persistance.BoardMapper">
 
 	<!-- 자바처럼 sql문과 java를 섞어서 사용할 수 없어서 include해서 사용한다 -->
-	<sql id="search">	
+	<sql id="search">
 		<if test="searchType != null and searchType.equals('writer')">
 			and writer like concat('%',#{keyword},'%')
 		</if>
@@ -61,5 +61,22 @@
 	<update id="boardDelete" parameterType="HashMap">
 		update board set delyn = 'Y', modifyday = now() where bidx = #{bidx} and midx = #{midx} and password = #{password}
 	</update>
-
+	
+	<update id="boardUpdate" parameterType="bv">
+		update board set subject = #{subject}, contents = #{contents}, writer = #{writer}, modifyday = now(), filename = #{uploadedFilename}, ip = #{ip} where bidx = #{bidx} and password = #{password} and midx = #{midx}
+	</update>
+	
+	<update id="boardReplyUpdate" parameterType="bv">
+		update board set depth = depth + 1 where originbidx = #{originbidx} and depth > #{depth}
+	</update>
+	
+	<insert id="boardReplyInsert" parameterType="bv">
+		insert into board(originbidx, depth, level_, subject, contents, writer, midx, filename, password, ip) 
+		values(#{originbidx}, #{depth} + 1, #{level_} + 1, #{subject}, #{contents}, #{writer}, #{midx}, #{uploadedFilename}, #{password}, #{ip})
+		
+		<selectKey keyProperty="bidx" resultType="int" order="AFTER">
+			select max(bidx) as maxbidx from board where originbidx = #{originbidx}
+	  	</selectKey>
+	</insert>
+	
 </mapper>

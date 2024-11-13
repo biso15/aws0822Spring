@@ -48,8 +48,8 @@ public class BoardServiceImpl implements BoardService {
 		return cnt;
 	}
 
+	@Transactional  // 트랜잭션
 	@Override
-	// @Transactional
 	public int boardInsert(BoardVo bv) {
 		
 		int value = bm.boardInsert(bv);
@@ -101,5 +101,24 @@ public class BoardServiceImpl implements BoardService {
 		
 		return cnt;
 		
+	}
+
+	@Override
+	public int boardUpdate(BoardVo bv) {
+		
+		int count = bm.boardUpdate(bv);
+		
+		return count;
+	}
+	
+	@Transactional
+	@Override
+	public int boardReply(BoardVo bv) {
+		// 업데이트하고 입력하기
+		int value = bm.boardReplyUpdate(bv);
+		int value2 = bm.boardReplyInsert(bv);
+		int maxBidx = bv.getBidx();
+		
+		return maxBidx;
 	}
 }

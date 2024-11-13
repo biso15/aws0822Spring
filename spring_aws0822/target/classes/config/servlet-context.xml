@@ -22,11 +22,12 @@
 		<beans:property name="suffix" value=".jsp" />  <!-- 뒤에 고정하는 (주소)값 -->
 	</beans:bean>
 	
-	<!-- CommonsMultipartResolver : 멀티파일 업로드에 관여 -->
+	<!-- 파일첨부 -->
  	<beans:bean id="uploadPath" class="java.lang.String">  <!-- uploadPath라는 String객체 -->
 		<beans:constructor-arg value="D:/dev/springUpload"></beans:constructor-arg>  <!-- 생성자의 인자값 -->
 	</beans:bean>
 	
+	<!-- CommonsMultipartResolver : 멀티파일 업로드에 관여 -->
 	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  <!-- 자바에서 사용했던 멀티파일 설정 @MultipartConfig인듯 -->
 		<beans:property name="maxUploadSize" value="10485760" />  <!-- 10MB -->
 	</beans:bean>

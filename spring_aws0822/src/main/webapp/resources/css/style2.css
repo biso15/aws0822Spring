@@ -7,7 +7,6 @@ select { cursor: pointer; border-color: lightgray; height: 20px; width: 70px; }
 textarea { border-color: lightgray; padding: 0 5px; }
 input { border: 1px solid lightgray; padding: 0 5px; }
 input[type="file"] { display: none; }
-.fileInputName { width: auto; }
 ul { list-style: none; }
 img { vertical-align: middle; }
 
@@ -30,6 +29,7 @@ table th, table td { padding: 5px 10px; }
 .writeTable th, td { border-bottom: 1px solid lightgray; }
 .writeTable input[type="text"], .writeTable textarea { width: 80%; }
 .writeTable input[name="writer"] { width: auto; }
+.writeTable input[type="text"].fileInputName { width: auto; }
 
 .replyTable th { background: #dfdfdf; }
 .replyTable th, .replyTable td { text-align: center; border-bottom: 1px solid lightgray; }

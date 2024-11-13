@@ -8,7 +8,7 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>  <!-- bean으로 등록해놓는 파일 -->
-			classpath:config/root-context.xml,
+			classpath:config/root-context.xml
 			classpath:config/security.xml
 		</param-value>
 	</context-param>

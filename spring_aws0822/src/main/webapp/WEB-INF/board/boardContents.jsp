@@ -15,6 +15,14 @@
 	if(session.getAttribute("midx") != null) {
 		midx = Integer.parseInt(session.getAttribute("midx").toString());
 	}
+
+	// 메세지
+	String msg = "";
+
+	if(request.getAttribute("msg") != null) {
+		msg = (String)request.getAttribute("msg");
+	  	out.println("<script>alert('"+msg+"');</script>");
+	  }
 %>
 
 <!DOCTYPE html>
@@ -76,10 +84,11 @@ function commentDel(cidx) {
 
 //jquery로 만드는 함수
 // 댓글 리스트 새로고침
- $.boardCommentList = function() {
+$.boardCommentList = function() {
 	$.ajax({
 		type: "get",  // 전송방식
-		url: "<%=request.getContextPath()%>/comment/commentList.aws?bidx=<%=bv.getBidx()%>",
+		<%-- url: "<%=request.getContextPath()%>/comment/commentList.aws?bidx=<%=bv.getBidx()%>", --%>
+		url: "<%=request.getContextPath()%>/comment/<%=bv.getBidx()%>/commentList.aws",  /* RestFul 방식(Rest api 사용) */
 		dataType: "json",  // 받는 형식. json 타입은 문서에서 {"key값": "value값", "key값" : "value값"} 형식으로 구성
 		success: function(result) {  // 결과가 넘어와서 성공했을 때 받는 영역
 			// alert("전송성공 테스트");			
@@ -89,8 +98,7 @@ function commentDel(cidx) {
 			var strTr = "";
 			var index = result.length;
 			
-			$(result).each(function() {
-				
+			$(result.clist).each(function(index) {
 				var btnn = "";
 				if (this.midx == "<%=midx%>") {
 					if(this.delyn == "N") {
@@ -98,6 +106,7 @@ function commentDel(cidx) {
 					}
 				}
 				
+				var index = index + 1;
 				strTr += "<tr><td class='cidx'>" + index-- + "</td>" + 
 						"<td class='cwriter'>" + this.cwriter + "</td>" + 
 						"<td class='ccontents'>" + this.ccontents + "</td>" + 
@@ -117,7 +126,6 @@ function commentDel(cidx) {
 		}
 	});
 }
-
 
 
 $(document).ready(function() {
@@ -234,7 +242,7 @@ $(document).ready(function() {
 
 <article class="commentContents">
 	<form name="frm">
-		<input type="text" name="cwriter" id="cwriter" class="commentWriter" value="<%-- <%=memberName%> --%>" readonly="readonly">
+		<input type="text" name="cwriter" id="cwriter" class="commentWriter" value="<%=memberName%>" readonly="readonly">
 		<input type="text" name="ccontents" id="ccontents">
 		<button type="button" class="replyBtn" id="cmtBtn">댓글쓰기</button>
 	</form>

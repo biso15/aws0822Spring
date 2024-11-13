@@ -19,7 +19,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -273,6 +272,137 @@ public class BoardController {
 		String path = "redirect:/board/boardList.aws";
 		if(value == 0) {
 			path = "redirect:/board/boardDelete.aws?bidx=" + bidx;			
+		}
+		
+		return path;
+	}
+	
+	@RequestMapping(value="boardModify.aws", method=RequestMethod.GET)
+	public String boardModify(
+			@RequestParam("bidx") int bidx,
+			Model model) {
+		
+		logger.info("boardModify들어옴");
+		
+		BoardVo bv = boardService.boardSelectOne(bidx);
+		
+		model.addAttribute("bv", bv);
+		
+		return "WEB-INF/board/boardModify";
+	}
+
+	@RequestMapping(value="boardModifyAction.aws", method=RequestMethod.POST)
+	public String boardModifyAction(
+			BoardVo bv,
+			@RequestParam("attachfile") MultipartFile filename,
+			HttpServletRequest request,
+			RedirectAttributes rttr,
+			Model model,
+			@RequestParam("isFileChange") String isFileChange
+			) throws Exception {
+		
+		logger.info("boardModifyAction들어옴");
+		
+		BoardVo bvOrigin = boardService.boardSelectOne(bv.getBidx());
+
+		String path = "";
+		if(bvOrigin.getPassword().equals(bv.getPassword())) {
+			int value = 0;
+
+			String uploadedFileName = "";
+			if(isFileChange.equals("true")) {
+				// 파일첨부
+				MultipartFile file = filename;
+				
+				if(!file.getOriginalFilename().equals("")) {			
+					uploadedFileName = UploadFileUtiles.uploadFile(uploadPath, file.getOriginalFilename(), file.getBytes());
+				}
+			} else {
+				uploadedFileName = bvOrigin.getFilename();
+			}
+			
+			String midx = request.getSession().getAttribute("midx").toString();
+			int midx_int = Integer.parseInt(midx);
+			String ip = getUserIp(request);
+			
+			bv.setUploadedFilename(uploadedFileName);
+			bv.setMidx(midx_int);
+			bv.setIp(ip);
+			
+			// 파일 업로드하고 upadte를 하기 위한 service를 만든다
+			value = boardService.boardUpdate(bv);
+			
+			if(value == 1) {
+				rttr.addFlashAttribute("msg", "글수정 성공");
+				path = "redirect:/board/boardContents.aws?bidx=" + bv.getBidx();
+			} else {
+				rttr.addFlashAttribute("msg", "입력이 잘못되었습니다.");
+				path = "redirect:/board/boardModify.aws?bidx=" + bv.getBidx();
+			}
+			
+		} else {
+				
+			// 비밀번호가 일치하지 않으면
+			rttr.addFlashAttribute("msg", "비밀번호가 일치하지 않습니다.");
+			path = "redirect:/board/boardModify.aws?bidx=" + bv.getBidx();
+		}
+			
+		return path;
+	}
+	
+	@RequestMapping(value="boardReply.aws", method=RequestMethod.GET)
+	public String boardReply(
+		@RequestParam("bidx") int bidx,
+		Model model) {
+
+		logger.info("boardReply들어옴");
+		
+		BoardVo bv = boardService.boardSelectOne(bidx);
+		
+		model.addAttribute("bv", bv);
+		
+		return "WEB-INF/board/boardReply";
+	
+	}
+
+	@RequestMapping(value="boardReplyAction.aws", method=RequestMethod.POST)
+	public String boardReplyAction(
+			BoardVo bv,
+			@RequestParam("attachfile") MultipartFile filename,  // input의 name 이름이 BoardVo에 있는 프로퍼티 이름과 동일하면 BoardVo로 값이 넘어가서 @RequestParam으로 받을 수 없으므로, input의 name을 filename이 아닌 attachfile으로 한다.
+			HttpServletRequest request,
+			RedirectAttributes rttr
+			) throws Exception {
+		
+		logger.info("boardReplyAction들어옴");
+		
+		// 파일첨부
+		MultipartFile file = filename;
+		String uploadedFileName = "";
+		
+		if(!file.getOriginalFilename().equals("")) {			
+			uploadedFileName = UploadFileUtiles.uploadFile(uploadPath, file.getOriginalFilename(), file.getBytes());
+		}
+
+		String midx = request.getSession().getAttribute("midx").toString();
+		int midx_int = Integer.parseInt(midx);
+		String ip = getUserIp(request);
+
+		bv.setUploadedFilename(uploadedFileName);
+		bv.setMidx(midx_int);
+		bv.setIp(ip);		
+		
+		int maxBidx = 0;
+		maxBidx = boardService.boardReply(bv);
+
+		String path = "";
+		if (maxBidx != 0) {
+			rttr.addFlashAttribute("msg", "답변이 등록 성공");
+			path = "redirect:/board/boardContents.aws?bidx=" + maxBidx;
+			
+		} else {
+			rttr.addFlashAttribute("msg", "답변이 등록되지 않았습니다.");
+			path ="redirect:/board/boardReply.aws?bidx=" + bv.getBidx();
+			
 		}
 		
 		return path;
