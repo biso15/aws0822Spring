@@ -6,17 +6,15 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.UUID;
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
 import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
 
-
 public class UploadFileUtiles {
 	
 	private static final Logger logger = 
-			LoggerFactory.getLogger(UploadFileUtiles.class);
+		LoggerFactory.getLogger(UploadFileUtiles.class);
 
 	public static String uploadFile(String uploadPath, String originalName, byte[] fileData)	
 	throws Exception{

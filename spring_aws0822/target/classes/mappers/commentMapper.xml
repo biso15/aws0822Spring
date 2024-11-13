@@ -5,7 +5,7 @@
 <mapper namespace="com.myaws.myapp.persistance.CommentMapper">
 	
 	<select id="commentSelectAll" resultType="cv">
-		select * from comment where delyn='N' and bidx = #{bidx} order by writeday desc
+		select * from comment where delyn='N' and bidx = #{0} order by writeday desc limit 0, #{1}  <!-- 여러개의 변수를 파라미터로 사용시 번호로 사용 가능 -->
 	</select>
 	
 	<insert id="commentInsert" parameterType="cv">
@@ -16,5 +16,9 @@
 	<update id="commentDelete" parameterType="cv">
 		update comment set delyn = 'Y', cip = #{cip} where cidx = #{cidx} and midx = #{midx}
 	</update>
+	
+	<select id="commentTotalCnt" parameterType = "int" resultType="int">
+		select count(*) as cnt from comment where delyn = 'N' and bidx = #{bidx}
+	</select>
 	
 </mapper>

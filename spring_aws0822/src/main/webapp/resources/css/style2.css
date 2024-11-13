@@ -41,6 +41,7 @@ table th, table td { padding: 5px 10px; }
 	cursor: pointer; display: inline-block; vertical-align: middle; }
 .aBtn {	text-align: center; line-height: 20px; }
 .labelBtn { width: 60px; text-align: center; }
+.moreBtn { margin-top: 10px; float: right; }
 
 .btnBox { text-align:right; margin-top: 10px; }
 .btnBox .btn { display: inline-block; width: 45px; }
@@ -63,7 +64,7 @@ table th, table td { padding: 5px 10px; }
 .detailContents .fileImage { max-width: 100%; margin-bottom: 5px; }
 .detailContents .fileDown:hover { color: orange; cursor: pointer; }
 
-.commentContents form[name="frm"] { margin-bottom: 40px; }
+.commentContents form[name="frm"], .commentContents #morebtn { margin-bottom: 40px; }
 .commentContents .commentWriter { border: 1px solid lightgray; display: inline-block; padding: 0 50px; width: 100px; }
 .commentContents input { width: 600px; height: 25px; float: left; }
 .commentContents .replyBtn { background: #555; width: 188px; float: left; border: none; cursor: pointer;

@@ -81,17 +81,28 @@ function commentDel(cidx) {
 	return;
 }
 
-
 //jquery로 만드는 함수
 // 댓글 리스트 새로고침
 $.boardCommentList = function() {
+
+	let block = $("#block").val();
+	
 	$.ajax({
 		type: "get",  // 전송방식
 		<%-- url: "<%=request.getContextPath()%>/comment/commentList.aws?bidx=<%=bv.getBidx()%>", --%>
-		url: "<%=request.getContextPath()%>/comment/<%=bv.getBidx()%>/commentList.aws",  /* RestFul 방식(Rest api 사용) */
+		url: "<%=request.getContextPath()%>/comment/<%=bv.getBidx()%>/" +block+ "/commentList.aws",  /* RestFul 방식(Rest api 사용) */
 		dataType: "json",  // 받는 형식. json 타입은 문서에서 {"key값": "value값", "key값" : "value값"} 형식으로 구성
 		success: function(result) {  // 결과가 넘어와서 성공했을 때 받는 영역
 			// alert("전송성공 테스트");			
+			
+			if(result.moreView == "N") {
+				$("#moreBtn").css("display", "none");
+			} else {
+				$("#moreBtn").css("display", "inline-block");
+			}
+			
+			let nextBlock = result.nextBlock;	
+			$("#block").val(nextBlock);
 			
 			var str = "<table class='replyTable'><tr><th>번호</th><th>작성자</th><th>내용</th><th>날짜</th><th>DEL</th></tr>";
 
@@ -186,17 +197,21 @@ $(document).ready(function() {
 			return;
 		}
 		
+		// 페이지 증가 상쇄
+		$("#block").val($("#block").val() - 1);
+		
 		$.ajax({
 			type: "post",  // 전송방식
 			url: "<%=request.getContextPath()%>/comment/commentWriteAction.aws",
 			dataType: "json",  // 받는 형식. json 타입은 문서에서 {"key값": "value값", "key값" : "value값"} 형식으로 구성
 			data: {"cwriter": cwriter, "ccontents": ccontents, "bidx": <%=bv.getBidx()%>, "midx": <%=midx%> },
 			success: function(result) {  // 결과가 넘어와서 성공했을 때 받는 영역
+				
 				// alert("전송성공 테스트");
-				$.boardCommentList();
 				if(result.value == 1) {
 					$("#ccontents").val("");
 				}
+				$.boardCommentList();
 			},
 		    error: function(xhr, status, error) {  // 결과가 실패했을 때 받는 영역
 				alert("전송실패 테스트");
@@ -206,6 +221,11 @@ $(document).ready(function() {
 			}
 		});
 	})
+	
+	 // 더보기
+ 	$("#more").click(function() {
+ 		$.boardCommentList();
+ 	});
 
 });
 
@@ -247,23 +267,12 @@ $(document).ready(function() {
 		<button type="button" class="replyBtn" id="cmtBtn">댓글쓰기</button>
 	</form>
 	
-	<div id="commentListView"></div>	
-<!-- 	<table class="replyTable">
-		<tr>
-			<th>번호</th>
-			<th>작성자</th>
-			<th>내용</th>
-			<th>날짜</th>
-			<th>DEL</th>
-		</tr>
-		<tr>
-			<td class="cidx">1</td>
-			<td class="cwriter">홍길동</td>
-			<td class="ccontents">댓글입니다</td>
-			<td class="writeday">2024-10-18</td>
-			<td>sss</td>
-		</tr>
-	</table> -->
+	<div id="commentListView"></div>
+	
+	<input type="hidden" id="block" value="1">
+	<div id="morebtn">
+		<button type="button" id="more" class="btn moreBtn">더보기</button>
+	</div>
 </article>
 
 </body>

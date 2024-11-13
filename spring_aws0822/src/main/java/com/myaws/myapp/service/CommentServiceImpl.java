@@ -20,9 +20,10 @@ public class CommentServiceImpl implements CommentService {
 	}
 	
 	@Override
-	public ArrayList<CommentVo> commentSelectAll(int bidx) {
-
-		ArrayList<CommentVo> clist = cm.commentSelectAll(bidx);
+	public ArrayList<CommentVo> commentSelectAll(int bidx, int block) {  // 타입이 같은 변수가 여러개면 하나의 타입, 변수명 대신 번호로 사용 가능
+		
+		block = block * 15;
+		ArrayList<CommentVo> clist = cm.commentSelectAll(bidx, block);
 
 		return clist;
 	}
@@ -41,6 +42,14 @@ public class CommentServiceImpl implements CommentService {
 		int value = cm.commentDelete(cv);
 		
 		return value;
+	}
+
+	@Override
+	public int commentTotalCnt(int bidx) {
+		
+		int cnt = cm.commentTotalCnt(bidx);
+		
+		return cnt;
 	}
 	
 }

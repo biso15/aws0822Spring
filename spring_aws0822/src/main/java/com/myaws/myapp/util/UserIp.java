@@ -4,6 +4,9 @@ import java.net.InetAddress;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class UserIp {
 
 	// ip주소 추출

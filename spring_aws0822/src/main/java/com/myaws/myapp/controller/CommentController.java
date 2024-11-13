@@ -30,16 +30,32 @@ public class CommentController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SampleAdvice.class);
 	
-	@RequestMapping(value="/{bidx}/commentList.aws")  // RestFul 방식
-	public JSONObject commentList(@PathVariable("bidx") int bidx) {
+	@RequestMapping(value="/{bidx}/{block}/commentList.aws")  // RestFul 방식
+	public JSONObject commentList(
+			@PathVariable("bidx") int bidx,
+			@PathVariable("block") int block
+			) {
 
 		logger.info("commentList 들어옴");
 		
-		ArrayList<CommentVo> clist = commentService.commentSelectAll(bidx);
+		String moreView = "";
+		int nextBlock = 0;
+		int cnt = commentService.commentTotalCnt(bidx);
+		if(cnt > block * 15) {
+			moreView = "Y";
+			nextBlock = block + 1;
+		} else {
+			moreView = "N";
+			nextBlock = block;
+		}
+
+		ArrayList<CommentVo> clist = commentService.commentSelectAll(bidx, block);
 		
 		JSONObject js = new JSONObject();
 
 		js.put("clist", clist);
+		js.put("moreView", moreView);
+		js.put("nextBlock", nextBlock);
 		
 		return js;
 	}
@@ -51,9 +67,9 @@ public class CommentController {
 			) throws Exception {
 
 		logger.info("commentWriteAction 들어옴");
-		
-		cv.setCip(userip.getUserIp(request));
-		
+		System.out.println("request주소 : " + userip.getUserIp(request));
+		//cv.setCip(userip.getUserIp(request));
+
 		int value = commentService.commentInsert(cv);
 		
 		JSONObject js = new JSONObject();
