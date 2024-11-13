@@ -65,7 +65,7 @@ function commentDel(cidx) {
 	if(ans == true) {
 		$.ajax({
 			type: "get",  // 전송방식
-			url: "<%=request.getContextPath()%>/comment/commentDeleteAction.aws?cidx="+cidx,
+			url: "<%=request.getContextPath()%>/comment/" + cidx + "/commentDeleteAction.aws",
 			dataType: "json",
 			success: function(result) {
 				// alert("전송성공");
@@ -166,8 +166,8 @@ $(document).ready(function() {
 	 // 댓글 작성
  	$("#cmtBtn").click(function() {
   		
-		let loginCheck = "<%=midx%>";
-		if(loginCheck == "" || loginCheck == null || loginCheck == "null" || loginCheck == 0) {
+		let midx = "<%=midx%>";
+		if(midx == "" || midx == null || midx == "null" || midx == 0) {
 			alert("로그인을 해주세요");
 			return;
 		}
@@ -200,9 +200,9 @@ $(document).ready(function() {
 			},
 		    error: function(xhr, status, error) {  // 결과가 실패했을 때 받는 영역
 				alert("전송실패 테스트");
-			   /*  console.log("Error Status: " + status);
+			    /* console.log("Error Status: " + status);
 			    console.log("Error Detail: " + error);
-			    console.log("Response: " + xhr.responseText); */
+			    console.log("Response: " + xhr.responseText);  */
 			}
 		});
 	})

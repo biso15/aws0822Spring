@@ -8,13 +8,13 @@
 		select * from comment where delyn='N' and bidx = #{bidx} order by writeday desc
 	</select>
 	
-<!-- 	<insert id="commentInsert" parameterType="cv">
+	<insert id="commentInsert" parameterType="cv">
 		insert into comment(csubject, ccontents, cwriter, midx, bidx, cip)
 		values(null, #{ccontents}, #{cwriter}, #{midx}, #{bidx}, #{cip})
-		
-		<selectKey keyProperty="bidx" resultType="int" order="AFTER">
-			select max(bidx) as maxbidx from board where originbidx = #{originbidx}
-	  	</selectKey>
-	</insert> -->
+	</insert>
+	
+	<update id="commentDelete" parameterType="cv">
+		update comment set delyn = 'Y', cip = #{cip} where cidx = #{cidx} and midx = #{midx}
+	</update>
 	
 </mapper>

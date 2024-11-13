@@ -5,7 +5,10 @@
 	<title>Home</title>
 </head>
 <body>
+<h1>
+	Hello world!  
+</h1>
 
-<a href="<%=request.getContextPath() %>/member/memberjoin.aws">회원가입 페이지</a>
+<P>  The time on the server is ${serverTime}. </P>
 </body>
 </html>

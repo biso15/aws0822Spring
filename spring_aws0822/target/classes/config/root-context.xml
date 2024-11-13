@@ -24,7 +24,9 @@
 	<!-- <bean id="tt" class="com.myaws.myapp.service.Test"></bean> -->
 	
 	<!-- mybatis 관련 설정 -->
+	<!-- 설정값을 한개의 파일에서 관리한다 --> 	
 	<context:property-placeholder location="classpath:properties/db.properties"/>  <!-- 설정값을 한개의 파일에서 관리한다 -->
+ 	
  	<bean id="db" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="${db.driver}" />  <!-- <property name="driverClassName" value="${db.driver}"></property> 와 같다 -->
 		<property name="url" value="${db.url}" />

@@ -3,7 +3,6 @@ package com.myaws.myapp.controller;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.util.ArrayList;
 
 import javax.annotation.Resource;
@@ -34,6 +33,7 @@ import com.myaws.myapp.domain.SearchCriteria;
 import com.myaws.myapp.service.BoardService;
 import com.myaws.myapp.util.MediaUtils;
 import com.myaws.myapp.util.UploadFileUtiles;
+import com.myaws.myapp.util.UserIp;
 
 @Controller  // Controller 객체를 만들어줘
 @RequestMapping(value="/board/")  // 중복된 주소는 위쪽에서 한번에 처리
@@ -49,6 +49,9 @@ public class BoardController {
 	
 	@Resource(name = "uploadPath")  // @Resource : 이름이 uploadpath인 객체를 찾아서 주입. Bean에 작성한 id를 찾는다.
 	private String uploadPath;
+	
+	@Autowired(required=false)
+	private UserIp userip;
 	
 	@RequestMapping(value="boardList.aws")
 	public String boardList(
@@ -100,7 +103,7 @@ public class BoardController {
 		
 		String midx = request.getSession().getAttribute("midx").toString();  // HttpSession은 HttpServletRequest 안에 있음
 		int midx_int = Integer.parseInt(midx);  // session.getAttribute()가 String 타입일 가능성이 더 높으므로 (int)session.getAttribute("midx")로 바로 형변환 하지 않고 String으로 변환 후 int로 변환한다.
-		String ip = getUserIp(request);
+		String ip = userip.getUserIp(request);
 		
 		bv.setUploadedFilename(uploadedFileName);
 		bv.setMidx(midx_int);
@@ -132,46 +135,6 @@ public class BoardController {
 		String path = "WEB-INF/board/boardContents";
 		
 		return path;			
-	}
-	
-	// ip주소 추출
-	public String getUserIp(HttpServletRequest request) throws Exception {
-		
-        String ip = null;
-        // HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
-
-        ip = request.getHeader("X-Forwarded-For");
-        
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
-            ip = request.getHeader("Proxy-Client-IP"); 
-        } 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
-            ip = request.getHeader("WL-Proxy-Client-IP"); 
-        } 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
-            ip = request.getHeader("HTTP_CLIENT_IP"); 
-        } 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR"); 
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
-            ip = request.getHeader("X-Real-IP"); 
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
-            ip = request.getHeader("X-RealIP"); 
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
-            ip = request.getHeader("REMOTE_ADDR");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) { 
-            ip = request.getRemoteAddr(); 
-        }
-        if (ip.equals("0:0:0:0:0:0:0:1") || ip.equals("127.0.0.1")) { 
-        	InetAddress address = InetAddress.getLocalHost();
-        	ip = address.getHostAddress();
-        }
-		
-		return ip;
 	}
 	
 	// 파일을 보여줄 가상 경로에 파일 옮기기
@@ -323,7 +286,7 @@ public class BoardController {
 			
 			String midx = request.getSession().getAttribute("midx").toString();
 			int midx_int = Integer.parseInt(midx);
-			String ip = getUserIp(request);
+			String ip = userip.getUserIp(request);
 			
 			bv.setUploadedFilename(uploadedFileName);
 			bv.setMidx(midx_int);
@@ -385,7 +348,7 @@ public class BoardController {
 
 		String midx = request.getSession().getAttribute("midx").toString();
 		int midx_int = Integer.parseInt(midx);
-		String ip = getUserIp(request);
+		String ip = userip.getUserIp(request);
 
 		bv.setUploadedFilename(uploadedFileName);
 		bv.setMidx(midx_int);
