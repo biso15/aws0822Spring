@@ -97,8 +97,10 @@ $.boardCommentList = function() {
 			
 			if(result.moreView == "N") {
 				$("#moreBtn").css("display", "none");
+				$("#blockPre").val($("#block").val());
 			} else {
-				$("#moreBtn").css("display", "inline-block");
+				$("#moreBtn").css("display", "block");
+				$("#blockPre").val($("#block").val() - 1);
 			}
 			
 			let nextBlock = result.nextBlock;	
@@ -197,9 +199,6 @@ $(document).ready(function() {
 			return;
 		}
 		
-		// 페이지 증가 상쇄
-		$("#block").val($("#block").val() - 1);
-		
 		$.ajax({
 			type: "post",  // 전송방식
 			url: "<%=request.getContextPath()%>/comment/commentWriteAction.aws",
@@ -211,6 +210,12 @@ $(document).ready(function() {
 				if(result.value == 1) {
 					$("#ccontents").val("");
 				}
+				
+				// 페이지 증가 상쇄
+				if($("#blockPre").val() < $("#block").val()) {
+					$("#block").val($("#block").val() - 1);
+				}
+				
 				$.boardCommentList();
 			},
 		    error: function(xhr, status, error) {  // 결과가 실패했을 때 받는 영역
@@ -270,7 +275,8 @@ $(document).ready(function() {
 	<div id="commentListView"></div>
 	
 	<input type="hidden" id="block" value="1">
-	<div id="morebtn">
+	<input type="hidden" id="blockPre" value="1">
+	<div id="moreBtn">
 		<button type="button" id="more" class="btn moreBtn">더보기</button>
 	</div>
 </article>
