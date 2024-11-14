@@ -1,15 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="com.myaws.myapp.domain.BoardVo"%>
-<%
-	BoardVo bv = (BoardVo)request.getAttribute("bv");
-%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>글답변</title>
-<link href="<%=request.getContextPath()%>/resources/css/style2.css" rel="stylesheet">
+<link href="${pageContext.request.contextPath}/resources/css/style2.css" rel="stylesheet">
 <script> 
 
 function check() {
@@ -38,7 +36,7 @@ function check() {
 	  let ans = confirm("저장하시겠습니까?");
 	  
 	  if (ans == true) {
-		  fm.action="<%=request.getContextPath()%>/board/boardReplyAction.aws";
+		  fm.action="${pageContext.request.contextPath}/board/boardReplyAction.aws";
 		  fm.method="post";
 		  fm.enctype="multipart/form-data";
 		  
@@ -56,10 +54,10 @@ function check() {
 </header>
 
 <form name="frm">
- 	<input type="hidden" value="<%=bv.getBidx()%>" name="bidx">
-	<input type="hidden" value="<%=bv.getOriginbidx()%>" name="originbidx">
-	<input type="hidden" value="<%=bv.getDepth()%>" name="depth">
-	<input type="hidden" value="<%=bv.getLevel_()%>" name="level_">
+ 	<input type="hidden" value="${requestScope.bv.bidx}" name="bidx">
+	<input type="hidden" value="${requestScope.bv.originbidx}" name="originbidx">
+	<input type="hidden" value="${requestScope.bv.depth}" name="depth">
+	<input type="hidden" value="${requestScope.bv.level_}" name="level_">
 	<table class="writeTable">
 		<tr>
 			<th>제목</th>

@@ -1,38 +1,21 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="com.myaws.myapp.domain.BoardVo"%>
-
-<%
-	BoardVo bv = (BoardVo)request.getAttribute("bv");  // 강제형변환. 양쪽 형을 맞춰준다.
-	
-	String memberName = "";
-	if(session.getAttribute("memberName") != null) {
-		memberName = (String)session.getAttribute("memberName");
-	}
-	
-	// 현재 로그인 사람과 댓글쓴 사람의 번호가 같을때만 버튼이 나타남
-	int midx = 0;
-	if(session.getAttribute("midx") != null) {
-		midx = Integer.parseInt(session.getAttribute("midx").toString());
-	}
-
-	// 메세지
-	String msg = "";
-
-	if(request.getAttribute("msg") != null) {
-		msg = (String)request.getAttribute("msg");
-	  	out.println("<script>alert('"+msg+"');</script>");
-	  }
-%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>글내용</title>
-<link href="<%=request.getContextPath()%>/resources/css/style2.css" rel="stylesheet">
+<link href="${pageContext.request.contextPath}/resources/css/style2.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-latest.min.js"></script>
-<script> 
+<script>
+// 메세지
+const msg = "${requestScope.msg}";
+if (msg != null && msg != "") {
+    alert(msg);
+}
+
 // 파일 다운로드시 썸네일을 다운받게 되므로 파일 이름에서 "s-"를 제거해야함
 function checkImageType(fileName) {  // 패턴과 확장자가 일치하는 파일 이름을 리턴받음
 	var pattern = /jpg$|gif$|png$|jpeg$/i;  // 자바스크립트 정규표현식
@@ -51,8 +34,8 @@ function getImageLink(fileName) {
 }
 
 function download() {  // 주소 사이에 s-를 뺀 주소를 리턴
-	var downloadImageName = getImageLink("<%=bv.getFilename()%>");  // 썸네일 이미지 이름으로 원본 이미지 이름 변환
-	var downLink = "<%=request.getContextPath()%>/board/displayFile.aws?fileName=" + downloadImageName + "&down=1";
+	var downloadImageName = getImageLink("${requestScope.bv.filename}");  // 썸네일 이미지 이름으로 원본 이미지 이름 변환
+	var downLink = "${pageContext.request.contextPath}/board/displayFile.aws?fileName=" + downloadImageName + "&down=1";
 	return downLink;	
 }
 
@@ -65,7 +48,7 @@ function commentDel(cidx) {
 	if(ans == true) {
 		$.ajax({
 			type: "get",  // 전송방식
-			url: "<%=request.getContextPath()%>/comment/" + cidx + "/commentDeleteAction.aws",
+			url: "${pageContext.request.contextPath}/comment/" + cidx + "/commentDeleteAction.aws",
 			dataType: "json",
 			success: function(result) {
 				// alert("전송성공");
@@ -89,8 +72,8 @@ $.boardCommentList = function() {
 	
 	$.ajax({
 		type: "get",  // 전송방식
-		<%-- url: "<%=request.getContextPath()%>/comment/commentList.aws?bidx=<%=bv.getBidx()%>", --%>
-		url: "<%=request.getContextPath()%>/comment/<%=bv.getBidx()%>/" +block+ "/commentList.aws",  /* RestFul 방식(Rest api 사용) */
+		<%-- url: "${pageContext.request.contextPath}/comment/commentList.aws?bidx=${requestScope.bv.getBidx()%>", --%>
+		url: "${pageContext.request.contextPath}/comment/${requestScope.bv.bidx}/" +block+ "/commentList.aws",  /* RestFul 방식(Rest api 사용) */
 		dataType: "json",  // 받는 형식. json 타입은 문서에서 {"key값": "value값", "key값" : "value값"} 형식으로 구성
 		success: function(result) {  // 결과가 넘어와서 성공했을 때 받는 영역
 			// alert("전송성공 테스트");			
@@ -113,7 +96,7 @@ $.boardCommentList = function() {
 			
 			$(result.clist).each(function(index) {
 				var btnn = "";
-				if (this.midx == "<%=midx%>") {
+				if (this.midx == "${sessionScope.midx}") {
 					if(this.delyn == "N") {
 						btnn = "<button type='button' class='btn' onclick='commentDel(" + this.cidx + ")'>삭제</button>";
 					}
@@ -130,6 +113,7 @@ $.boardCommentList = function() {
 			str = str + strTr + "</table>";
 			
 			$("#commentListView").html(str);
+
 		},
 	    error: function(xhr, status, error) {  // 결과가 실패했을 때 받는 영역
 			alert("전송실패 테스트");
@@ -144,7 +128,7 @@ $.boardCommentList = function() {
 $(document).ready(function() {
 	
 	// 파일 이름 변경
-	$("#dUrl").html(getOriginalFileName("<%=bv.getFilename()%>") + " 다운받기");
+	$("#dUrl").html(getOriginalFileName("${requestScope.bv.filename}") + " 다운받기");
 
 	// 원본 파일 다운로드
 	$("#dUrl").click(function() {
@@ -160,7 +144,7 @@ $(document).ready(function() {
 		
 		$.ajax({
 			type: "get",  // bidx를 보내야 함
-			url: "<%=request.getContextPath()%>/board/boardRecom.aws?bidx=<%=bv.getBidx()%>",
+			url: "${pageContext.request.contextPath}/board/boardRecom.aws?bidx=${requestScope.bv.bidx}>",
 			dataType: "json",
 			// data: {"bidx": bidx},  // get 방식으로 parameter로 넘긴다
 			success: function(result) {
@@ -179,7 +163,7 @@ $(document).ready(function() {
 	 // 댓글 작성
  	$("#cmtBtn").click(function() {
   		
-		let midx = "<%=midx%>";
+		let midx = "${sessionScope.midx}";
 		if(midx == "" || midx == null || midx == "null" || midx == 0) {
 			alert("로그인을 해주세요");
 			return;
@@ -201,9 +185,9 @@ $(document).ready(function() {
 		
 		$.ajax({
 			type: "post",  // 전송방식
-			url: "<%=request.getContextPath()%>/comment/commentWriteAction.aws",
+			url: "${pageContext.request.contextPath}/comment/commentWriteAction.aws",
 			dataType: "json",  // 받는 형식. json 타입은 문서에서 {"key값": "value값", "key값" : "value값"} 형식으로 구성
-			data: {"cwriter": cwriter, "ccontents": ccontents, "bidx": <%=bv.getBidx()%>, "midx": <%=midx%> },
+			data: {"cwriter": cwriter, "ccontents": ccontents, "bidx": "${requestScope.bv.bidx}", "midx": "${sessionScope.midx}"},
 			success: function(result) {  // 결과가 넘어와서 성공했을 때 받는 영역
 				
 				// alert("전송성공 테스트");
@@ -217,6 +201,7 @@ $(document).ready(function() {
 				}
 				
 				$.boardCommentList();
+				
 			},
 		    error: function(xhr, status, error) {  // 결과가 실패했을 때 받는 영역
 				alert("전송실패 테스트");
@@ -243,31 +228,31 @@ $(document).ready(function() {
 
 <article class="detailContents">
 	<div class="detailTitle">
-		<h2 class="contentTitle"><%=bv.getSubject()%> (조회수:<%=bv.getViewcnt()%>)</h2>		
-		<input type="button" id="btn" value="추천(<%=bv.getRecom()%>)" class="btn">
+		<h2 class="contentTitle">${requestScope.bv.subject} (조회수:${requestScope.bv.viewcnt})</h2>		
+		<input type="button" id="btn" value="추천(${requestScope.bv.recom})" class="btn">
 	</div>
-	<p class="write"><%=bv.getWriter()%> (<%=bv.getWriteday()%>)</p>
+	<p class="write">${requestScope.bv.writer} (${requestScope.bv.writeday})</p>
 	
 	<div class="content">
-		<%=bv.getContents()%>
+		${requestScope.bv.contents}
 	</div>
-	<% if(bv.getFilename() == null || bv.getFilename().equals("")) { } else { %>
-	<%-- <img src="<%=request.getContextPath()%>/image/<%=bv.getFilename()%>" class="fileImage">  <!-- 보안상의 이유로 프로젝트 내부에 파일을 저장하지 않음. 경로 수정 필요 --> --%>
-	<img src="<%=request.getContextPath()%>/board/displayFile.aws?fileName=<%=bv.getFilename()%>" class="fileImage">  <!-- down의 값을 넘기지 않으면 기본값이 0이므로 이미지인 경우 미리보기로 나타남 -->
+	
+	<c:if test="${!empty requestScope.bv.filename}">
+	<img src="${pageContext.request.contextPath}/board/displayFile.aws?fileName=${requestScope.bv.filename}" class="fileImage">  <!-- down의 값을 넘기지 않으면 기본값이 0이므로 이미지인 경우 미리보기로 나타남 -->
 	<p><a href="#" id="dUrl" class="fileDown">첨부파일다운로드</a></p>
-	<% } %>
+	</c:if>
 </article>
 	
 <div class="btnBox">
-	<a class="btn aBtn" href="<%=request.getContextPath()%>/board/boardModify.aws?bidx=<%=bv.getBidx()%>">수정</a>
-	<a class="btn aBtn" href="<%=request.getContextPath()%>/board/boardDelete.aws?bidx=<%=bv.getBidx()%>">삭제</a>
-	<a class="btn aBtn" href="<%=request.getContextPath()%>/board/boardReply.aws?bidx=<%=bv.getBidx()%>">답변</a>
+	<a class="btn aBtn" href="${pageContext.request.contextPath}/board/boardModify.aws?bidx=${requestScope.bv.bidx}">수정</a>
+	<a class="btn aBtn" href="${pageContext.request.contextPath}/board/boardDelete.aws?bidx=${requestScope.bv.bidx}">삭제</a>
+	<a class="btn aBtn" href="${pageContext.request.contextPath}/board/boardReply.aws?bidx=${requestScope.bv.bidx}">답변</a>
 	<button type="button" class="btn" onclick="history.back();">목록</button>
 </div>
 
 <article class="commentContents">
 	<form name="frm">
-		<input type="text" name="cwriter" id="cwriter" class="commentWriter" value="<%=memberName%>" readonly="readonly">
+		<input type="text" name="cwriter" id="cwriter" class="commentWriter" value="${sessionScope.memberName}" readonly="readonly">
 		<input type="text" name="ccontents" id="ccontents">
 		<button type="button" class="replyBtn" id="cmtBtn">댓글쓰기</button>
 	</form>

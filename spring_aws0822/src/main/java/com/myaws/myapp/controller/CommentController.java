@@ -67,8 +67,8 @@ public class CommentController {
 			) throws Exception {
 
 		logger.info("commentWriteAction µé¾î¿È");
-		System.out.println("requestÁÖ¼Ò : " + userip.getUserIp(request));
-		//cv.setCip(userip.getUserIp(request));
+		
+		cv.setCip(userip.getUserIp(request));
 
 		int value = commentService.commentInsert(cv);
 		
@@ -84,9 +84,9 @@ public class CommentController {
 			HttpServletRequest request,
 			CommentVo cv) throws Exception {
 
-		logger.info("commentDeleteAction µé¾î¿È");		
+		logger.info("commentDeleteAction µé¾î¿È");
 		
-		int midx = Integer.parseInt(request.getAttribute("midx").toString());
+		int midx = Integer.parseInt(request.getSession().getAttribute("midx").toString());
 		cv.setMidx(midx);
 		cv.setCidx(cidx);
 		cv.setCip(userip.getUserIp(request));

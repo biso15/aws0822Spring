@@ -1,22 +1,20 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-    
-<%
-	//메세지
-	String msg = "";
-	
-	if(request.getAttribute("msg") != null) {
-		msg = (String)request.getAttribute("msg");
-		out.println("<script>alert('"+msg+"');</script>");
-	}
-%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>글쓰기</title>
-<link href="<%=request.getContextPath()%>/resources/css/style2.css" type="text/css" rel="stylesheet">
+<link href="${pageContext.request.contextPath}/resources/css/style2.css" type="text/css" rel="stylesheet">
 <script>
+// 메세지
+const msg = "${requestScope.msg}";
+if (msg != null && msg != "") {
+ alert(msg);
+}
+
 function check() {
 	  
 	  // 유효성 검사하기
@@ -43,7 +41,7 @@ function check() {
 	  let ans = confirm("저장하시겠습니까?");  // true 함수의 값을 참과 거짓 true, false로 나눈다
 	  
 	  if (ans == true) {
-		  fm.action="<%=request.getContextPath()%>/board/boardWriteAction.aws";
+		  fm.action="${pageContext.request.contextPath}/board/boardWriteAction.aws";
 		  fm.method="post";
 		  fm.enctype="multipart/form-data";  // 인코딩 타입. 문자 뿐만 아니라 이미지같은 파일도 포함
 		  fm.submit();

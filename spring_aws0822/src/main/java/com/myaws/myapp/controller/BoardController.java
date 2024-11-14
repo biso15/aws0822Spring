@@ -59,7 +59,7 @@ public class BoardController {
 			Model model
 			) {
 		
-		logger.info("boardList들어옴");		
+		logger.info("boardList들어옴");
 		
 		pm.setScri(scri);  // <-- PageMaker에 SearhCriteria 담아서 가지고 다닌다
 		
@@ -225,7 +225,8 @@ public class BoardController {
 	public String boardDeleteAction(
 			@RequestParam("bidx") int bidx,
 			@RequestParam("password") String password,
-			HttpSession session) {
+			HttpSession session,
+			RedirectAttributes rttr) {
 		
 		logger.info("boardDeleteAction들어옴");		
 		
@@ -233,8 +234,10 @@ public class BoardController {
 		int value = boardService.boardDelete(bidx, midx, password);
 
 		String path = "redirect:/board/boardList.aws";
+		rttr.addFlashAttribute("msg", "글삭제 성공");
 		if(value == 0) {
-			path = "redirect:/board/boardDelete.aws?bidx=" + bidx;			
+			path = "redirect:/board/boardDelete.aws?bidx=" + bidx;	
+			rttr.addFlashAttribute("msg", "글삭제 실패");
 		}
 		
 		return path;
@@ -359,7 +362,7 @@ public class BoardController {
 
 		String path = "";
 		if (maxBidx != 0) {
-			rttr.addFlashAttribute("msg", "답변이 등록 성공");
+			rttr.addFlashAttribute("msg", "답변 등록 성공");
 			path = "redirect:/board/boardContents.aws?bidx=" + maxBidx;
 			
 		} else {
