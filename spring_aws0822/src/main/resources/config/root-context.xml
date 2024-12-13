@@ -49,6 +49,21 @@
 		<constructor-arg ref="db" />
 	</bean>
 	
+	<!-- 메일 api -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="biso150@gmail.com" />
+		<property name="password" value="back styh sfqh lsak" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
+			</props>
+		</property>
+	</bean>
+	
 	<tx:annotation-driven />
 	
 	<!-- AOP -->

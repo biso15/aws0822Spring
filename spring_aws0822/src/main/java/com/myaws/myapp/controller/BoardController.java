@@ -20,6 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -372,5 +374,26 @@ public class BoardController {
 		}
 		
 		return path;
+	}
+	
+	
+	// 여기부터는 리액트를 위한 코드
+	@ResponseBody
+	@PostMapping(value="boardWriteActionReact.aws")  // @RequestMapping(value="boardWriteActionReact.aws", method=RequestMethod.POST) 이것을 좀더 편리하게 @PostMapping으로 사용할 수 있다.
+	public JSONObject boardWriteActionReact(@RequestBody BoardVo bv) {
+		System.out.println("Midx: " + bv.getMidx());
+		
+		JSONObject js = new JSONObject();
+
+		int value = boardService.boardInsert(bv);
+		System.out.println("value: " + value);
+				
+		if(value == 2) {  // 성공
+			js.put("result", "success");
+		} else {
+			js.put("result", "fail");
+		}
+		
+		return js;
 	}
 }

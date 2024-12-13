@@ -21,6 +21,7 @@
 </c:if>
 
 <a href="${pageContext.request.contextPath}/member/memberList.aws">회원 목록가기</a><br>
-<a href="${pageContext.request.contextPath}/board/boardList.aws">게시판 목록가기</a>
+<a href="${pageContext.request.contextPath}/board/boardList.aws">게시판 목록가기</a><br>
+<a href="${pageContext.request.contextPath}/email/emailWrite.aws">이메일 보내기</a>
 </body>
 </html>
